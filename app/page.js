@@ -1,104 +1,125 @@
 'use client'
-import { useState } from 'react';
-import axios from 'axios';
-import CryptoJS from 'crypto-js';
+import Navbar from './components/Navbar';
+import AuthRedirect from './components/AuthRedirect';
 
-export default function Dashboard() {
-  const [file, setFile] = useState(null);
-  const [password, setPassword] = useState('');
-  const [link, setLink] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleUpload = async () => {
-    if (!file || !password) return alert("File and password required");
-   
-    setLoading(true);
-   
-    const reader = new FileReader();
-    reader.onload = async function (e) {
-      try {
-        const encrypted = CryptoJS.AES.encrypt(e.target.result, password).toString();
-        const res = await axios.post('/api/upload', {
-          filename: file.name,
-          content: encrypted,
-        });
-       
-        if (res.data.success) {
-          setLink(`${window.location.origin}/download/${res.data.id}`);
-        }
-      } catch (error) {
-        alert("Upload failed: " + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-slate-800 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
-      <div className="max-w-md w-full bg-gray-800 rounded-xl shadow-2xl overflow-hidden p-8 border border-gray-700">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-white mb-2">🔐 Secure File Upload</h1>
-          <p className="text-gray-400">Encrypt and share your files securely</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-slate-800">
+      {/* This component will redirect authenticated users to dashboard */}
+      <AuthRedirect />
+      
+      <Navbar isLandingPage={true} />
+      
+      {/* Hero Section */}
+      <div className="pt-20 pb-32 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-500">
+              Secure File Sharing
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
+            End-to-end encrypted file transfers. Your files remain private with password protection.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <a 
+              href="/sign-up" 
+              className="px-8 py-4 bg-purple-600 text-white rounded-lg font-medium shadow-lg hover:bg-purple-700 transition-colors text-lg"
+            >
+              Get Started
+            </a>
+            <a 
+              href="/sign-in" 
+              className="px-8 py-4 bg-gray-700 text-white rounded-lg font-medium shadow-lg hover:bg-gray-600 transition-colors text-lg"
+            >
+              Login
+            </a>
+          </div>
         </div>
-       
-        <div className="space-y-6">
-          <div className="relative border-2 border-dashed border-gray-600 rounded-lg p-6 bg-gray-700/50 hover:bg-gray-700 transition-colors cursor-pointer">
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            <div className="text-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p className="mt-1 text-sm text-gray-300">
-                {file ? file.name : "Drag & drop a file or click to select"}
-              </p>
-            </div>
-          </div>
-         
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
-              Encryption Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter a secure password"
-              className="block w-full px-4 py-3 rounded-lg border border-gray-600 shadow-sm bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-         
-          <button
-            onClick={handleUpload}
-            disabled={loading || !file || !password}
-            className="w-full bg-purple-600 text-white px-4 py-3 rounded-lg font-medium shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? "Encrypting & Uploading..." : "Secure Upload"}
-          </button>
-        </div>
-       
-        {link && (
-          <div className="mt-8 p-4 bg-gray-700 rounded-lg border border-gray-600">
-            <p className="text-purple-400 font-medium mb-2">Secure link generated:</p>
-            <div className="bg-gray-800 p-3 rounded border border-gray-700 break-all">
-              <a href={link} className="text-purple-400 hover:text-purple-300 font-medium" target="_blank" rel="noopener noreferrer">
-                {link}
-              </a>
-            </div>
-            <p className="mt-3 text-xs text-gray-400">Share this link and password with the recipient</p>
-          </div>
-        )}
       </div>
+
+      {/* Rest of the landing page content remains unchanged */}
+      {/* Features Section */}
+      <div className="py-16 bg-gray-800/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">How It Works</h2>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Upload</h3>
+              <p className="text-gray-300">Select your file and set a strong password for encryption</p>
+            </div>
+            
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Share</h3>
+              <p className="text-gray-300">Send the encrypted link and password separately to the recipient</p>
+            </div>
+            
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Download</h3>
+              <p className="text-gray-300">Recipients enter the password to decrypt and download the file</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Security Section */}
+      <div className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gray-800/70 rounded-2xl p-8 shadow-2xl border border-gray-700">
+            <h2 className="text-3xl font-bold text-white mb-6">Your Privacy Matters</h2>
+            <p className="text-gray-300 text-lg mb-6">
+              All files are encrypted in your browser before uploading. The encryption password never leaves your device, 
+              ensuring that only someone with both the link and password can access your files.
+            </p>
+            <ul className="space-y-4 text-gray-300">
+              <li className="flex items-start">
+                <svg className="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>End-to-end encryption using AES-256</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Password is never stored on our servers</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Files are encrypted before leaving your browser</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="py-8 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-gray-400 text-sm">
+            © {new Date().getFullYear()} SecureShare. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
